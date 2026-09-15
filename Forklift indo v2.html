@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flashcard Teori Forklift — TLILIC0003</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --steel:#1d2328;
+    --floor:#e7e4dd;
+    --paint:#f5c518;
+    --paint-deep:#c49500;
+    --ink:#14181b;
+    --muted:#6d757c;
+    --line:#c9c5bb;
+    --ok:#2e7d54;
+    --miss:#b4442f;
+    --r:4px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--floor);color:var(--ink);font-family:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.5;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px 44px}
+  header{background:var(--steel);color:#fff;margin:0 -16px 14px;padding:18px 16px 16px;border-bottom:6px solid var(--paint);position:relative}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:repeating-linear-gradient(115deg,var(--paint) 0 14px,var(--steel) 14px 28px)}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1;margin:0;letter-spacing:.4px}
+  .sub{color:#9aa3ab;font-size:14px;margin-top:5px}
+
+  .filters{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--steel);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.3px;padding:6px 12px;border-radius:100px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--steel);color:#fff;border-color:var(--steel)}
+
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .count{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;color:var(--muted);white-space:nowrap}
+  .track{flex:1;height:4px;background:#d3cfc5;border-radius:2px;overflow:hidden}
+  .fill{height:100%;background:var(--paint-deep);width:0%;transition:width .25s ease}
+
+  .panel{background:#fff;border:1px solid var(--line);border-top:5px solid var(--steel);border-radius:var(--r);padding:20px;box-shadow:0 2px 0 rgba(0,0,0,.14);position:relative}
+  .tag{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:.6px;color:var(--muted);margin-bottom:12px}
+  .star{position:absolute;top:-5px;right:0;background:var(--paint);color:var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.5px;padding:4px 9px;border-radius:0 4px 0 4px}
+  .q{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:25px;line-height:1.18}
+  .hint{margin-top:10px;font-size:15px;color:var(--muted);font-style:italic}
+
+  .dots{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0 6px;padding:11px 12px;background:#f3f1ea;border:1px dashed var(--line);border-radius:var(--r)}
+  .dots .lab{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.4px;color:var(--muted);margin-right:2px}
+  .dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--steel);background:transparent}
+  .dot.on{background:var(--paint);border-color:var(--paint-deep)}
+
+  textarea{width:100%;min-height:150px;margin-top:8px;padding:12px;font-family:'Barlow',sans-serif;font-size:16.5px;line-height:1.5;color:var(--ink);background:repeating-linear-gradient(#fff 0 28px,#ece9e0 28px 29px);border:1px solid var(--line);border-radius:var(--r);resize:vertical}
+  textarea:focus{outline:3px solid var(--paint);outline-offset:1px;border-color:var(--steel)}
+
+  .answer{margin-top:14px;background:var(--steel);color:#f2f2ef;border-radius:var(--r);border-top:5px solid var(--paint);padding:20px;display:none}
+  .answer.show{display:block}
+  .answer .tag{color:var(--paint)}
+  .a{font-size:17.5px;line-height:1.45}
+  .a ol{margin:0;padding-left:24px}
+  .a li{margin-bottom:7px}
+  .a li::marker{color:var(--paint);font-weight:600}
+  .a strong{color:var(--paint);font-weight:600}
+  .note{margin-top:14px;padding-top:12px;border-top:1px solid #3c444b;font-size:14.5px;color:#a9b1b8}
+  .selfcheck{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .selfcheck button{font-size:16px;padding:11px 8px}
+  .yes{border-color:var(--ok);color:var(--ok);background:#fff}
+  .yes[aria-pressed="true"]{background:var(--ok);color:#fff}
+  .no{border-color:var(--miss);color:var(--miss);background:#fff}
+  .no[aria-pressed="true"]{background:var(--miss);color:#fff}
+
+  .controls{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:8px;margin-top:14px}
+  button{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.4px;padding:13px 8px;border-radius:var(--r);border:1px solid var(--steel);background:#fff;color:var(--steel);cursor:pointer}
+  button:active{transform:translateY(1px)}
+  .primary{background:var(--steel);color:#fff}
+  button:focus-visible{outline:3px solid var(--paint-deep);outline-offset:2px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+  .score{margin-top:14px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--paint);border-radius:var(--r);padding:12px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .score span{color:var(--muted);font-weight:500}
+  .score button{padding:6px 10px;font-size:14px}
+  footer{margin-top:20px;font-size:13.5px;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Flashcard Teori Forklift</h1>
+    <div class="sub">TLILIC0003 · 75 soal · tulis jawabanmu dulu, baru cek</div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+
+  <div class="bar">
+    <span class="count" id="count">—</span>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <div class="panel">
+    <div class="tag" id="tag"></div>
+    <div class="q" id="q"></div>
+    <div class="hint" id="hint"></div>
+    <div class="dots" id="dots"></div>
+    <textarea id="input" placeholder="Tulis jawabanmu di sini (bahasa Inggris)…" spellcheck="false"></textarea>
+  </div>
+
+  <div class="answer" id="answer">
+    <div class="tag">KUNCI JAWABAN</div>
+    <div class="a" id="a"></div>
+    <div class="note" id="note"></div>
+    <div class="selfcheck">
+      <button class="yes" id="yes" aria-pressed="false">Jawabanku benar</button>
+      <button class="no" id="no" aria-pressed="false">Perlu diulang</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="prev">‹ Kembali</button>
+    <button id="reveal" class="primary">Lihat jawaban</button>
+    <button id="next">Lanjut ›</button>
+  </div>
+  <div class="row2">
+    <button id="shuffle">Acak urutan</button>
+    <button id="onlywrong">Latih yang salah</button>
+  </div>
+
+  <div class="score">
+    <span id="scoretext">Benar 0 · Salah 0 · Belum 75</span>
+    <button id="resetscore">Reset</button>
+  </div>
+
+  <footer>
+    Titik bulat di atas kolom jawaban menunjukkan <strong>berapa poin</strong> yang diminta soal itu — kalau ada 7 titik, tulis 7 poin.
+    Soal bertanda <strong>PENTING</strong> (no. 1–11, 18, 21, 56) harus dihafal lengkap, tidak boleh disingkat.
+    Tes tertulis 61 soal, lulus minimal 57 benar. Tes hitungan 9 soal, harus benar semua.
+  </footer>
+</div>
+
+<script>
+const DATA=[
+{n:1,c:"K3 & Hukum",star:1,q:"In a new work environment, what would you look for FIRST?",hint:"Gunakan akronim F.I.R.S.T",
+ a:"<ol><li><strong>F</strong>irefighting & first aid equipment</li><li><strong>I</strong>nformation about safety policies</li><li><strong>R</strong>isk control measures (signs, barricades, exclusion zones, walkways)</li><li><strong>S</strong>uitable racking (check for damage and the rated weight capacity)</li><li><strong>T</strong>raffic management plan (floor plan, adequate facilities)</li></ol>",
+ note:"Alat pemadam & P3K, info kebijakan K3, pengendalian risiko, rak yang layak, rencana lalu lintas."},
+{n:2,c:"K3 & Hukum",star:1,q:"Where in the workplace can you find safety information?",
+ a:"<ol><li>Noticeboard</li><li>Safety policies</li><li>Traffic management plan</li><li>Safety officer</li><li>Company website</li><li>Worksafe website</li><li>SWMS</li><li>Signs</li></ol>",
+ note:"Papan pengumuman, kebijakan K3, traffic management plan, safety officer, website perusahaan, website Worksafe, SWMS, rambu."},
+{n:3,c:"K3 & Hukum",star:1,q:"If you are asked to drive a forklift that is unfamiliar to you, what does your employer need to provide?",hint:"Ingat apa yang dilakukan trainer di hari pertama — S.I.T",
+ a:"<ol><li><strong>S</strong>upervision</li><li><strong>I</strong>nstruction</li><li><strong>T</strong>raining</li></ol>",
+ note:"Pengawasan, instruksi, pelatihan."},
+{n:4,c:"K3 & Hukum",star:1,q:"When undertaking work, what 'Duty of Care' does a High-Risk Work Licence holder have?",
+ a:"<ol><li>Drive the forklift in a safe manner</li><li>Follow all of the safety policies</li><li>Look after the health & safety of myself</li><li>Look after the health & safety of others</li></ol>",
+ note:"Mengemudi dengan aman, patuhi semua kebijakan K3, jaga K3 diri sendiri dan orang lain."},
+{n:5,c:"K3 & Hukum",star:1,q:"As a HRW Licence holder, what are the penalties for working unsafely?",
+ a:"<ol><li>Suspend forklift licence</li><li>Cancel forklift licence</li><li>Prosecution</li></ol>",
+ note:"Lisensi ditangguhkan, lisensi dicabut, dituntut hukum."},
+{n:6,c:"K3 & Hukum",star:1,q:"What responsibilities does your boss have to keep workers healthy & safe at work?",
+ a:"<ol><li>Provide adequate facilities</li><li>Provide safe forklifts</li><li>Provide a safe work environment</li><li>Provide safety policies at work</li></ol>",
+ note:"Fasilitas memadai, forklift aman, lingkungan kerja aman, kebijakan K3."},
+{n:7,c:"K3 & Hukum",star:1,q:"What 5 things do we need to plan for FIRST before we start work (other than hazards)?",hint:"F.I.R.S.T — sama seperti soal 1",
+ a:"<ol><li><strong>F</strong>irefighting & first aid equipment</li><li><strong>I</strong>nformation about safety policies</li><li><strong>R</strong>isk control measures</li><li><strong>S</strong>uitable racking</li><li><strong>T</strong>raffic management plan</li></ol>"},
+{n:8,c:"Hazard & Risk",star:1,q:"What does the term 'HAZARD' mean?",
+ a:"<ol><li><strong>Anything</strong> that can hurt you</li></ol>",note:"Segala sesuatu yang bisa melukai kamu."},
+{n:9,c:"Hazard & Risk",star:1,q:"What does the term 'RISK' mean?",
+ a:"<ol><li>When there is a <strong>chance</strong> that a hazard can <strong>hurt you</strong></li></ol>",note:"Kemungkinan bahwa hazard dapat melukai kamu."},
+{n:10,c:"Hazard & Risk",star:1,q:"At work, who would you tell if you found a hazard?",hint:"Sebutkan jabatannya, bukan namanya",
+ a:"<ol><li>Supervisor</li><li>Manager</li><li>Safety officer</li><li>Other workers</li></ol>",
+ note:"Supervisor, manajer, petugas K3, rekan kerja lain."},
+{n:11,c:"Hazard & Risk",star:1,q:"Why is it important to tell people about HAZARDS?",
+ a:"<ol><li>So everyone <strong>knows</strong> about the <strong>hazards</strong></li></ol>",note:"Supaya semua orang tahu bahayanya."},
+{n:12,c:"Hazard & Risk",q:"Write down 10 hazards you should KNOW about before starting work.",
+ a:"<ol><li>Roof</li><li>Overhead lights</li><li>Electrical cables</li><li>Roller door</li><li>Forklifts</li><li>People</li><li>Gas bottles</li><li>Racking</li><li>Unstable loads</li><li>Obstructions – barrels, barricades</li><li>Slippery floor</li></ol>",
+ note:"Atap, lampu gantung, kabel listrik, pintu roller, forklift, orang, tabung gas, rak, muatan tidak stabil, penghalang, lantai licin."},
+{n:13,c:"Hazard & Risk",q:"Why is rear-end swing of the forklift dangerous?",
+ a:"<ol><li>The <strong>back</strong> of the forklift <strong>moves fast</strong> and could <strong>hit a person</strong></li></ol>",
+ note:"Buritan forklift bergerak cepat saat belok dan bisa menabrak orang."},
+{n:14,c:"Hazard & Risk",q:"If you operate a combustion engine forklift (gas, petrol or diesel) in a poorly ventilated area, what may happen to you or people working near you?",
+ a:"<ol><li><strong>Toxic fumes kill people</strong></li></ol>",note:"Asap beracun bisa membunuh orang."},
+{n:15,c:"Hazard & Risk",q:"What type of forklift should you use in a poorly ventilated area?",
+ a:"<ol><li><strong>Electric forklift</strong></li></ol>",note:"Forklift listrik / baterai."},
+{n:16,c:"Hazard & Risk",q:"Why do we need to obtain a weather forecast when planning the day's operation?",hint:"Kata-kata di soal sudah memberi jawabannya",
+ a:"<ol><li>The forecast helps to <strong>plan the day's work operations</strong></li></ol>",note:"Agar bisa merencanakan operasi kerja hari itu."},
+{n:17,c:"Hazard & Risk",q:"What are four weather hazards that could affect forklift operations?",
+ a:"<ol><li>Extreme heat</li><li>Rain</li><li>Strong winds</li><li>Smoke</li><li>Fog, ice or snow</li></ol>",
+ note:"Panas ekstrem, hujan, angin kencang, asap, kabut/es/salju."},
+{n:18,c:"Power Lines",star:1,q:"What is the minimum distance that you must keep your forklift away from distribution and transmission power lines in Victoria?",hint:"Wajib memakai istilah QUALIFIED SPOTTER",
+ a:"<ol><li>Poles: <strong>3 metres</strong> with a qualified spotter</li><li>Poles: <strong>6.4 metres</strong> without a spotter</li><li>Towers: <strong>8 metres</strong> with a qualified spotter</li><li>Towers: <strong>10 metres</strong> without a spotter</li></ol>",
+ note:"Qualified spotter = orang yang lulus Qualified Electrical Spotters course."},
+{n:19,c:"Power Lines",q:"How would you determine the voltage of electric lines?",
+ a:"<ol><li><strong>Call the power company</strong> (they maintain the power lines)</li></ol>",note:"Hubungi perusahaan listrik yang merawat jaringan."},
+{n:20,c:"Power Lines",q:"What is added to power lines to warn people of the danger?",
+ a:"<ol><li>Tiger tails (black and yellow sleeve wrapped around power lines)</li><li>Warning signs</li><li>Power line marker balls</li></ol>",
+ note:"Tiger tail, rambu peringatan, bola penanda kabel."},
+{n:21,c:"Power Lines",star:1,q:"The forklift you are operating comes into contact with the power lines. What are the 5 steps you need to take?",hint:"Jawaban harus urut",
+ a:"<ol><li><strong>Warn</strong> people to stay away</li><li>Try to <strong>move the forklift</strong> off the powerlines</li><li><strong>If safe</strong> stay on the forklift, <strong>if unsafe</strong> jump clear and shuffle away <strong>8 metres</strong></li><li><strong>Report</strong> the accident to your manager</li><li>Have the <strong>forklift checked</strong> by a technician before you use it again</li></ol>",
+ note:"Urutan tidak boleh tertukar."},
+{n:22,c:"Komunikasi",q:"If there are people and forklifts around, what RISK CONTROL MEASURES can we use to protect them?",
+ a:"<ol><li>Signs</li><li>Barricades</li><li>Exclusion zones</li><li>Walkways</li></ol>",note:"Rambu, barikade, zona larangan, jalur pejalan kaki."},
+{n:23,c:"Komunikasi",q:"If you had to operate your forklift at night or in a dark area, what must be provided?",
+ a:"<ol><li><strong>Adequate lighting</strong></li></ol>",note:"Penerangan yang memadai."},
+{n:24,c:"Komunikasi",q:"What are some different ways to communicate in the warehouse?",
+ a:"<ol><li>Signs</li><li>Eye contact</li><li>Talking</li><li>Hand signals</li></ol>",note:"Rambu, kontak mata, bicara, aba-aba tangan."},
+{n:25,c:"Komunikasi",q:"If you're driving a forklift and given a hand signal by someone that you do not understand, what would you do?",
+ a:"<ol><li><strong>Stop</strong> the forklift and <strong>ask</strong> for a clear signal</li></ol>",note:"Hentikan forklift dan minta aba-aba yang jelas."},
+{n:26,c:"Data Plate",q:"Where do you find the rated capacity of the forklift and any attachments that may be used on that forklift?",
+ a:"<ol><li>On the <strong>data plate</strong></li></ol>",note:"Di data plate forklift."},
+{n:27,c:"Data Plate",q:"If the forklift data plate is missing, what should we do?",hint:"S.T.I.R.R",
+ a:"<ol><li><strong>S</strong>top using the forklift</li><li><strong>T</strong>ag out of service</li><li><strong>I</strong>solate — remove the key</li><li><strong>R</strong>eport to your manager</li><li><strong>R</strong>ecord in the forklift logbook</li></ol>",
+ note:"Stop, tag, isolasi (cabut kunci), lapor manajer, catat di logbook."},
+{n:28,c:"Data Plate",q:"How do we find the load's centre of gravity?",hint:"Soal diagram — kamu harus menggambar",
+ a:"<ol><li>Draw a cross through the <strong>centre of the load</strong> (half the length, half the height) and mark a dot where the lines meet</li><li>Draw an <strong>arrow from the heel of the fork arms to that dot</strong> — that distance is the load centre</li></ol>",
+ note:"Gambar silang di tengah muatan, beri titik, lalu tarik panah dari tumit garpu ke titik itu."},
+{n:29,c:"Data Plate",q:"What is the most common Load Centre Distance on Australian forklift data plates?",
+ a:"<ol><li><strong>600 mm</strong> (half of a standard CHEP pallet, 1200 mm ÷ 2)</li></ol>",note:"600 mm — setengah palet standar CHEP."},
+{n:30,c:"Data Plate",q:"If the load is not hard up against the heel of the fork arms, what effect will this have on the forklift?",
+ a:"<ol><li><strong>Reduce</strong> the forklift's <strong>stability</strong></li><li><strong>Reduce</strong> the forklift's <strong>capacity</strong></li><li>The forklift could <strong>tip forward</strong></li></ol>",
+ note:"Stabilitas turun, kapasitas turun, forklift bisa terguling ke depan."},
+{n:31,c:"Pre-Start",q:"Name 3 different guards on the forklift and what they protect.",
+ a:"<ol><li><strong>Foot guard</strong> – protects the driver's feet</li><li><strong>Overhead guard</strong> – protects the driver from falling objects</li><li><strong>Load guard</strong> – protects the mast and the driver</li></ol>",
+ note:"Untuk load guard wajib sebut dua fungsinya."},
+{n:32,c:"Pre-Start",q:"What Pre-Start checks do we do on our forklift?",
+ a:"<ol><li>No leaks underneath</li><li>Tynes — no cracks at tips & heels, pins connected well</li><li>Load guard — no major cracks or damage, bolts secure</li><li>Mast, welds, hydraulics, chain, tilt cylinder</li><li>Tyres, wheels and wheel nuts</li><li>Handbrake, mirrors, overhead guard, seat & seatbelt</li><li>Counterweight, logbook, lights</li><li>Data plate and safety decals readable</li></ol>",
+ note:"Urutan mengelilingi forklift dari bawah ke atas."},
+{n:33,c:"Pre-Start",q:"Why does the battery need to be recharged in a well-ventilated area?",
+ a:"<ol><li>The battery gives off an <strong>explosive gas</strong> when charging</li></ol>",note:"Baterai mengeluarkan gas mudah meledak saat dicas."},
+{n:34,c:"Pre-Start",q:"What might happen if we refuel the forklift with the engine running?",
+ a:"<ol><li>The <strong>forklift may catch fire</strong></li></ol>",note:"Forklift bisa terbakar."},
+{n:35,c:"Pre-Start",q:"Why do we check to see if air-filled tyres are inflated to their correct operating pressure?",
+ a:"<ol><li>To keep the forklift <strong>stable</strong></li></ol>",note:"Agar forklift tetap stabil."},
+{n:36,c:"Pre-Start",q:"When inspecting wheels and tyres, what do you need to check for?",
+ a:"<ol><li>Big chunks of rubber missing</li><li>Tread not worn down</li><li>Even tread wear</li><li>Sidewall damage</li><li>Flat tyre</li><li>Tyre attached to the wheel</li><li>Wheel attached to the forklift</li></ol>",
+ note:"Tujuh poin — hafalkan semuanya."},
+{n:37,c:"Attachment",q:"How would you find out how to secure an attachment correctly?",
+ a:"<ol><li>The <strong>attachment manual</strong> will give us instructions</li></ol>",note:"Lihat manual attachment."},
+{n:38,c:"Attachment",q:"How will fitting an attachment affect the capacity of the forklift?",
+ a:"<ol><li>It will <strong>reduce</strong> the capacity of the forklift</li></ol>",note:"Kapasitas berkurang."},
+{n:39,c:"Attachment",q:"List the name of 4 different attachments.",
+ a:"<ol><li>Jib</li><li>Safety cage</li><li>Slippers (fork extensions)</li><li>Bin tipper</li></ol>"},
+{n:40,c:"Attachment",q:"What hazards are associated with using a jib attachment? What effect would it have on the forklift?",
+ a:"<ol><li><strong>Reduce capacity</strong></li><li>The forklift could <strong>tip over</strong></li></ol>",note:"Kapasitas berkurang dan forklift bisa terguling."},
+{n:41,c:"Operasi",q:"How many points of contact should we have when getting on or off the forklift?",
+ a:"<ol><li><strong>3</strong> — both hands and 1 foot</li></ol>",note:"Tiga titik: dua tangan, satu kaki."},
+{n:42,c:"Operasi",q:"What should we check for once we have started the forklift (start-up checks) and before moving any loads?",hint:"E.H.M",
+ a:"<ol><li><strong>E</strong>lectronics – lights, sounds, gauges</li><li><strong>H</strong>ydraulics – to their full extent</li><li><strong>M</strong>ovement – steering and brakes</li></ol>"},
+{n:43,c:"Operasi",q:"If, during your checks, you noticed a fault, what action would you take?",hint:"S.T.I.R.R",
+ a:"<ol><li><strong>S</strong>top</li><li><strong>T</strong>ag</li><li><strong>I</strong>solate</li><li><strong>R</strong>eport</li><li><strong>R</strong>ecord</li></ol>"},
+{n:44,c:"Operasi",q:"How could you check how much a load weighs?",
+ a:"<ol><li>Weigh the load</li><li>Calculate the weight</li><li>Check paperwork with the load</li><li>Read the label on the load</li></ol>",
+ note:"Timbang, hitung, cek dokumen, baca label."},
+{n:45,c:"Operasi",q:"Where is the fulcrum or point of balance of a forklift?",hint:"Soal diagram — gambar panah",
+ a:"<ol><li>Where the <strong>front tyres touch the ground</strong></li></ol>",note:"Titik ban depan menyentuh tanah."},
+{n:46,c:"Operasi",q:"What will make the forklift tip over forwards?",
+ a:"<ol><li><strong>Driving</strong> with a raised load</li><li><strong>Driving</strong> with an uneven load</li><li><strong>Driving</strong> on uneven ground</li><li><strong>Driving</strong> too fast</li></ol>",
+ note:"Semua diawali DRIVING. Bandingkan dengan soal 47."},
+{n:47,c:"Operasi",q:"What will make the forklift tip over sideways?",
+ a:"<ol><li><strong>Turning</strong> with a raised load</li><li><strong>Turning</strong> with an uneven load</li><li><strong>Turning</strong> on uneven ground</li><li><strong>Turning</strong> too fast</li></ol>",
+ note:"Semua diawali TURNING. Bandingkan dengan soal 46."},
+{n:48,c:"Operasi",q:"If the forklift was to roll over sideways, what do you need to do?",
+ a:"<ol><li>Stay on the forklift</li><li>Hold on tight</li><li>Lean opposite way to the direction of the tip</li></ol>",
+ note:"Tetap di forklift, pegang erat, condong berlawanan arah."},
+{n:49,c:"Operasi",q:"Why are seat belts fitted to forklift trucks?",hint:"Sebutkan fungsi dan kejadiannya",
+ a:"<ol><li>Stops you <strong>falling out</strong> in a <strong>rollover</strong></li><li>Stops you being <strong>thrown forwards</strong> in a <strong>crash</strong></li></ol>"},
+{n:50,c:"Operasi",q:"How high should the load be from the ground when moving loads?",
+ a:"<ol><li>At or below <strong>axle height</strong></li><li>At or below the middle of the front wheel</li></ol>",note:"Setinggi atau di bawah as roda depan."},
+{n:51,c:"Operasi",q:"Why is it important to have the side-shift attachment centralised before travelling with a load?",hint:"Selalu 2 jawaban untuk soal LOAD + FORKLIFT",
+ a:"<ol><li>To keep the <strong>load</strong> stable</li><li>To keep the <strong>forklift</strong> stable</li></ol>"},
+{n:52,c:"Operasi",q:"When can you carry a passenger on a forklift?",
+ a:"<ol><li><strong>Only</strong> when the forklift is <strong>designed</strong> to do so</li></ol>",note:"Hanya bila forklift memang dirancang untuk itu."},
+{n:53,c:"Operasi",q:"What could happen if you raise a load near or over people?",hint:"Jawaban paling jelas adalah yang benar",
+ a:"<ol><li>The <strong>load could fall and kill someone</strong></li></ol>"},
+{n:54,c:"Operasi",q:"If you are travelling with a large load that obscures your vision, what precautions should you take?",
+ a:"<ol><li>Drive in reverse</li><li>Use a spotter or guide to help you</li><li>Repack or rearrange the load</li></ol>",
+ note:"Mundur, pakai spotter, atau tata ulang muatan."},
+{n:55,c:"Operasi",q:"When driving, why do we have to constantly monitor the LOAD for MOVEMENT?",
+ a:"<ol><li>To make sure the <strong>load hasn't moved</strong></li></ol>",note:"Memastikan muatan tidak bergeser."},
+{n:56,c:"Operasi",star:1,q:"When stacking loads on top of each other, what needs to be considered?",hint:"Bayangkan menjelaskan ke anak umur 10 tahun",
+ a:"<ol><li>The <strong>surface</strong> should be <strong>hard and flat</strong></li><li>The <strong>heaviest</strong> load should be on the <strong>bottom</strong></li><li>Stack to a <strong>stable</strong> height</li><li>Can the bottom load <strong>support</strong> the loads above</li></ol>"},
+{n:57,c:"Operasi",q:"If the surface is wet or slippery, what precautions must you take whilst operating the forklift?",
+ a:"<ol><li>Drive the forklift <strong>slowly</strong></li><li>Drive with more <strong>caution</strong></li><li>Avoid sudden braking</li><li>Avoid ramps or slopes</li></ol>"},
+{n:58,c:"Operasi",q:"When travelling up a ramp or incline, which direction should the load face?",
+ a:"<ol><li><strong>Uphill</strong></li></ol>",note:"Muatan menghadap ke atas tanjakan."},
+{n:59,c:"Operasi",q:"Why is it dangerous to turn a LOADed FORKLIFT on a ramp or slope?",hint:"Selalu 2 jawaban",
+ a:"<ol><li>You could <strong>tip the forklift</strong></li><li>You could <strong>lose the load</strong></li></ol>"},
+{n:60,c:"Operasi",q:"When using a loading dock, what should be provided to allow safe access to unload the truck?",
+ a:"<ol><li><strong>Bridge plate</strong></li></ol>",note:"Bridge plate / dock plate."},
+{n:61,c:"Operasi",q:"Why is it unsafe to carry the LOAD on one fork arm?",
+ a:"<ol><li>You could <strong>tip the forklift</strong></li><li>You could <strong>lose the load</strong></li><li>You could <strong>damage the tyne and the mast</strong></li></ol>",
+ note:"Soal ini tiga poin, bukan dua."},
+{n:62,c:"Operasi",q:"Why is it dangerous to operate the FORKLIFT with the LOAD raised?",
+ a:"<ol><li>You could <strong>tip the forklift</strong></li><li>You could <strong>lose the load</strong></li></ol>"},
+{n:63,c:"Operasi",q:"If the forklift was to lose control because of loss of brakes or hydraulic failure, what would you do?",hint:"S.T.I.R.R",
+ a:"<ol><li><strong>S</strong>top</li><li><strong>T</strong>ag</li><li><strong>I</strong>solate</li><li><strong>R</strong>eport</li><li><strong>R</strong>ecord</li></ol>"},
+{n:64,c:"Parkir",q:"Where in the workplace would you NOT park your forklift?",hint:"Gunakan huruf 'F' dari F.I.R.S.T",
+ a:"<ol><li>In front of fire fighting equipment</li><li>In front of first aid equipment</li><li>In front of an emergency exit</li><li>On a walkway</li><li>Where the forklift is blocking other traffic</li></ol>"},
+{n:65,c:"Parkir",q:"According to safe work procedures, what are the 'normal' steps when parking the forklift?",
+ a:"<ol><li>Lower the tynes to the ground</li><li>Place the forklift in neutral gear</li><li>Put the handbrake on</li><li>Turn off the ignition</li><li>Remove the key</li></ol>"},
+{n:66,c:"Parkir",q:"According to safe work procedures, why is the key removed when parking and securing the forklift?",
+ a:"<ol><li>To stop <strong>unauthorised use</strong></li></ol>",note:"Agar tidak dipakai orang tak berwenang."},
+{n:67,c:"Perhitungan",q:"Forklift rating — max capacity 2200 KG, LCD 600 mm. Could the forklift pick up a load of 2200 kg at a 500 mm load centre distance?",
+ a:"<ol><li><strong>YES</strong> — 500 mm is less than the rated 600 mm load centre</li></ol>",note:"YA, karena 500 mm masih di bawah 600 mm."},
+{n:68,c:"Perhitungan",q:"Max capacity 2200 KG, LCD 600 mm. If we try to lift a 2200 kg load with a load centre distance greater than 600 mm, what will happen to the forklift?",
+ a:"<ol><li>The <strong>forklift may tip over</strong></li></ol>",note:"Forklift bisa terguling."},
+{n:69,c:"Perhitungan",q:"Using data plate A, what is the forklift's maximum Working Load Limit (WLL) with the MAST VERTICAL?",
+ a:"<ol><li><strong>1250 KG</strong></li></ol>"},
+{n:70,c:"Perhitungan",q:"Using data plate A, what is the forklift's Working Load Limit (WLL) with the mast on FORWARD TILT?",
+ a:"<ol><li><strong>1050 KG</strong></li></ol>",note:"Kapasitas forward tilt selalu lebih kecil daripada mast vertical."},
+{n:71,c:"Perhitungan",q:"Using data plate A, can the forklift lift a load of 1250 kg with a LOAD CENTRE of 700 mm when the MAST is VERTICAL?",
+ a:"<ol><li><strong>NO</strong> — 700 mm exceeds the rated 600 mm load centre</li></ol>"},
+{n:72,c:"Perhitungan",q:"Using data plate A, can the forklift lift a load of MORE than 1250 kg when the mast is vertical?",
+ a:"<ol><li><strong>NO</strong></li></ol>"},
+{n:73,c:"Perhitungan",q:"The load is cartons stacked on a pallet: 9 cartons to a layer, 3 layers, each carton 25 kg, the pallet 30 kg. What is the total weight? Show all calculations.",
+ a:"<ol><li>9 × 3 = 27 cartons</li><li>27 × 25 kg = 675 kg</li><li>675 + 30 = <strong>705 KG</strong></li></ol>",
+ note:"Tulis semua baris perhitungan dan cantumkan satuan KG di jawaban akhir."},
+{n:74,c:"Perhitungan",q:"On the Toyota data plate, what do 'Mast Vertical', 'FWD Tilt', 'Lift Height H' and 'Load Centre D' mean?",
+ a:"<ol><li><strong>Mast vertical</strong> – maximum weight that can be lifted when the mast is vertical</li><li><strong>FWD tilt</strong> – maximum weight the forklift can lift when the mast is tilted forward</li><li><strong>Lift height 'H'</strong> – maximum height the forks can be raised to</li><li><strong>Load centre 'D'</strong> – maximum distance from the heel of the tyne to the load's centre of gravity</li></ol>"},
+{n:75,c:"Perhitungan",q:"How do you decide whether a load is safe to lift, using the data plate?",hint:"Rumus di bawah tabel Load 1 / Load 2",
+ a:"<ol><li><strong>Length ÷ 2</strong> – must not exceed the rated load centre</li><li><strong>Height ÷ 2</strong> – must not exceed the rated load centre</li><li><strong>Weight</strong> – check against the maximum capacity</li></ol>",
+ note:"Kalau salah satu terlampaui, muatan tidak aman diangkat. Untuk kontainer, jumlahkan dulu tare weight + isi."}
+];
+
+DATA.forEach(d=>{d.p=(d.a.match(/<li>/g)||[]).length||1;});
+
+const $=id=>document.getElementById(id);
+const state={cat:"Semua",order:[],i:0,onlyWrong:false};
+const answers={},result={};
+
+const cats=["Semua","Wajib hafal",...[...new Set(DATA.map(d=>d.c))]];
+cats.forEach(c=>{
+  const b=document.createElement("button");
+  b.className="chip";b.textContent=c;b.setAttribute("aria-pressed",c===state.cat);
+  b.onclick=()=>{state.cat=c;state.onlyWrong=false;$("onlywrong").setAttribute("aria-pressed",false);
+    [...$("filters").children].forEach(x=>x.setAttribute("aria-pressed",x.textContent===c));build();};
+  $("filters").appendChild(b);
+});
+
+function pool(){
+  let p=DATA.slice();
+  if(state.cat==="Wajib hafal")p=p.filter(d=>d.star);
+  else if(state.cat!=="Semua")p=p.filter(d=>d.c===state.cat);
+  if(state.onlyWrong)p=p.filter(d=>result[d.n]==="no");
+  return p;
+}
+function build(){state.order=pool();state.i=0;render();}
+
+function saveInput(){const d=state.order[state.i];if(d)answers[d.n]=$("input").value;}
+
+function render(){
+  const list=state.order;
+  const old=document.querySelector(".star");if(old)old.remove();
+  $("answer").classList.remove("show");
+  if(!list.length){
+    $("q").textContent="Tidak ada soal di kategori ini.";
+    $("tag").textContent="";$("hint").style.display="none";
+    $("dots").style.display="none";$("input").style.display="none";
+    $("count").textContent="0 / 0";$("fill").style.width="0%";updateScore();return;
+  }
+  $("dots").style.display="flex";$("input").style.display="block";
+  const d=list[state.i];
+  $("tag").textContent="Soal "+d.n+" · "+d.c;
+  $("q").innerHTML=d.q;
+  $("hint").textContent=d.hint||"";
+  $("hint").style.display=d.hint?"block":"none";
+  $("dots").innerHTML='<span class="lab">JUMLAH POIN: '+d.p+'</span>'+Array(d.p).fill('<span class="dot"></span>').join("");
+  $("input").value=answers[d.n]||"";
+  $("a").innerHTML=d.a;
+  $("note").textContent=d.note||"";
+  $("note").style.display=d.note?"block":"none";
+  $("yes").setAttribute("aria-pressed",result[d.n]==="yes");
+  $("no").setAttribute("aria-pressed",result[d.n]==="no");
+  $("count").textContent=(state.i+1)+" / "+list.length;
+  $("fill").style.width=((state.i+1)/list.length*100)+"%";
+  if(d.star){const s=document.createElement("div");s.className="star";s.textContent="PENTING";document.querySelector(".panel").appendChild(s);}
+  updateScore();
+}
+function updateScore(){
+  let y=0,n=0;
+  Object.values(result).forEach(v=>v==="yes"?y++:n++);
+  $("scoretext").textContent="Benar "+y+" · Salah "+n+" · Belum "+(DATA.length-y-n);
+}
+function markDots(){
+  const d=state.order[state.i];if(!d)return;
+  const lines=($("input").value.split(/\n+/).filter(t=>t.trim()).length);
+  [...$("dots").querySelectorAll(".dot")].forEach((el,idx)=>el.classList.toggle("on",idx<lines));
+}
+$("input").addEventListener("input",()=>{saveInput();markDots();});
+$("reveal").onclick=()=>{saveInput();$("answer").classList.toggle("show");
+  if($("answer").classList.contains("show"))$("answer").scrollIntoView({behavior:"smooth",block:"start"});};
+$("next").onclick=()=>{saveInput();if(state.i<state.order.length-1){state.i++;render();window.scrollTo({top:0,behavior:"smooth"});}};
+$("prev").onclick=()=>{saveInput();if(state.i>0){state.i--;render();window.scrollTo({top:0,behavior:"smooth"});}};
+$("shuffle").onclick=()=>{saveInput();for(let i=state.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[state.order[i],state.order[j]]=[state.order[j],state.order[i]];}state.i=0;render();};
+$("onlywrong").onclick=()=>{state.onlyWrong=!state.onlyWrong;$("onlywrong").setAttribute("aria-pressed",state.onlyWrong);
+  $("onlywrong").textContent=state.onlyWrong?"Tampilkan semua":"Latih yang salah";build();};
+$("yes").onclick=()=>{const d=state.order[state.i];if(d){result[d.n]="yes";render();}};
+$("no").onclick=()=>{const d=state.order[state.i];if(d){result[d.n]="no";render();}};
+$("resetscore").onclick=()=>{for(const k in result)delete result[k];for(const k in answers)delete answers[k];build();};
+build();markDots();
+</script>
+</body>
+</html>
